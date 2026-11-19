@@ -1,13 +1,10 @@
-
 name: Deploy Demo Objects
 
-# Controls when the action will run. 
 on:
   push:
     branches:
       - main
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -15,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -27,7 +23,22 @@ jobs:
       - name: Install Python packages
         run: pip install -r requirements.txt
 
-      # Make sure all 7 SNOWFLAKE_ environment variables are set
+      - name: Debug secret lengths
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+        run: |
+          echo "ACCOUNT_LEN=${#SNOWFLAKE_ACCOUNT}"
+          echo "USER_LEN=${#SNOWFLAKE_USER}"
+          echo "ROLE_LEN=${#SNOWFLAKE_ROLE}"
+          echo "DB_LEN=${#SNOWFLAKE_DATABASE}"
+          echo "SCHEMA_LEN=${#SNOWFLAKE_SCHEMA}"
+          echo "WH_LEN=${#SNOWFLAKE_WAREHOUSE}"
+
       - name: Deploy notebooks
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
