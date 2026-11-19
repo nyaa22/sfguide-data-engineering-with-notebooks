@@ -1,7 +1,4 @@
-- name: Show values
-  run: |
-    echo "USER=${{ secrets.SNOWFLAKE_USER }}"
-    echo "ROLE=${{ secrets.SNOWFLAKE_ROLE }}"
+
 name: Deploy Demo Objects
 
 # Controls when the action will run. 
