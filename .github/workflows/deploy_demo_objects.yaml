@@ -42,6 +42,47 @@ jobs:
           echo "SCHEMA_LEN=${#SNOWFLAKE_SCHEMA}"
           echo "WH_LEN=${#SNOWFLAKE_WAREHOUSE}"
 
+      - name: Snowflake login test
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+        run: |
+          python - << 'PY'
+          from snowflake.snowpark import Session
+          import os
+
+          params = {
+              "account": os.environ["SNOWFLAKE_ACCOUNT"],
+              "user": os.environ["SNOWFLAKE_USER"],
+              "password": os.environ["SNOWFLAKE_PASSWORD"],
+              "role": os.environ["SNOWFLAKE_ROLE"],
+              "warehouse": os.environ["SNOWFLAKE_WAREHOUSE"],
+              "database": os.environ["SNOWFLAKE_DATABASE"],
+              "schema": os.environ["SNOWFLAKE_SCHEMA"]
+          }
+
+          print("Attempting Snowflake connection...")
+
+          session = Session.builder.configs(params).create()
+
+          result = session.sql("""
+              SELECT
+                  CURRENT_USER(),
+                  CURRENT_ROLE(),
+                  CURRENT_DATABASE(),
+                  CURRENT_SCHEMA(),
+                  CURRENT_WAREHOUSE()
+          """).collect()
+
+          print(result)
+          print("CONNECTION SUCCESSFUL")
+          PY
+
       - name: Deploy notebooks
         env:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
